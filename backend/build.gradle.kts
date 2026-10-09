@@ -6,7 +6,7 @@ plugins {
 }
 
 group = "ru.alfahack.elephants"
-version = "0.0.1-SNAPSHOT"
+version = "devel"
 
 java {
 	toolchain {
