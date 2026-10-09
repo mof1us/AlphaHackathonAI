@@ -1,43 +1,49 @@
+import io.spring.gradle.dependencymanagement.dsl.DependencyManagementExtension
+import org.jetbrains.kotlin.gradle.dsl.KotlinJvmProjectExtension
+
 plugins {
-	kotlin("jvm") version "2.3.21"
-	kotlin("plugin.spring") version "2.3.21"
-	id("org.springframework.boot") version "4.1.1"
-	id("io.spring.dependency-management") version "1.1.7"
+    base
+    kotlin("jvm") version "2.3.21" apply false
+    kotlin("plugin.spring") version "2.3.21" apply false
+    id("org.springframework.boot") version "4.1.1" apply false
+    id("io.spring.dependency-management") version "1.1.7" apply false
 }
 
-group = "ru.alfahack.elephants"
-version = "devel"
-
-java {
-	toolchain {
-		languageVersion = JavaLanguageVersion.of(21)
-	}
+allprojects {
+    group = "ru.alfahack.elephants"
+    version = "devel"
+    repositories { mavenCentral() }
 }
 
-repositories {
-	mavenCentral()
+subprojects {
+    apply(plugin = "org.jetbrains.kotlin.jvm")
+    apply(plugin = "org.jetbrains.kotlin.plugin.spring")
+    apply(plugin = "java-library")
+    apply(plugin = "io.spring.dependency-management")
+
+    extra["jooq.version"] = "3.21.5"
+    configure<DependencyManagementExtension> {
+        imports { mavenBom("org.springframework.boot:spring-boot-dependencies:4.1.1") }
+    }
+    configure<JavaPluginExtension> {
+        toolchain { languageVersion.set(JavaLanguageVersion.of(21)) }
+    }
+    configure<KotlinJvmProjectExtension> {
+        compilerOptions {
+            freeCompilerArgs.addAll("-Xjsr305=strict", "-Xannotation-default-target=param-property")
+        }
+    }
+    dependencies {
+        add("implementation", "org.jetbrains.kotlin:kotlin-reflect")
+        add("testImplementation", "org.springframework.boot:spring-boot-starter-test")
+        add("testImplementation", "org.jetbrains.kotlin:kotlin-test-junit5")
+        add("testImplementation", "org.jetbrains.kotlinx:kotlinx-coroutines-test")
+        add("testImplementation", "io.mockk:mockk:1.14.11")
+        add("testRuntimeOnly", "org.junit.platform:junit-platform-launcher")
+    }
+    tasks.withType<Test>().configureEach { useJUnitPlatform() }
 }
 
-dependencies {
-	implementation("org.springframework.boot:spring-boot-starter-jooq")
-	implementation("org.springframework.boot:spring-boot-starter-webflux")
-	implementation("io.projectreactor.kotlin:reactor-kotlin-extensions")
-	implementation("org.jetbrains.kotlin:kotlin-reflect")
-	implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
-	implementation("tools.jackson.module:jackson-module-kotlin")
-	testImplementation("org.springframework.boot:spring-boot-starter-jooq-test")
-	testImplementation("org.springframework.boot:spring-boot-starter-webflux-test")
-	testImplementation("org.jetbrains.kotlin:kotlin-test-junit5")
-	testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test")
-	testRuntimeOnly("org.junit.platform:junit-platform-launcher")
-}
-
-kotlin {
-	compilerOptions {
-		freeCompilerArgs.addAll("-Xjsr305=strict", "-Xannotation-default-target=param-property")
-	}
-}
-
-tasks.withType<Test> {
-	useJUnitPlatform()
-}
+tasks.named("build") { dependsOn(subprojects.map { "${it.path}:build" }) }
+tasks.named("check") { dependsOn(subprojects.map { "${it.path}:check" }) }
+tasks.named("clean") { dependsOn(subprojects.map { "${it.path}:clean" }) }

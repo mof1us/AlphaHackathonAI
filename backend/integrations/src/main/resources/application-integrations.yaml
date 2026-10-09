@@ -1,0 +1,4 @@
+integrations:
+  temporal:
+    target: ${INTEGRATIONS_TEMPORAL_TARGET:127.0.0.1:7233}
+    namespace: ${INTEGRATIONS_TEMPORAL_NAMESPACE:default}

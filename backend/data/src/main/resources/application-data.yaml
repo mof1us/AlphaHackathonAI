@@ -1,0 +1,13 @@
+app:
+  datasource:
+    host: ${DB_HOST:localhost}
+    port: ${DB_PORT:5432}
+    database: ${DB_NAME:elephants}
+    username: ${DB_USER:postgres}
+    password: ${DB_PASSWORD:postgres}
+
+spring:
+  sql:
+    init:
+      mode: never
+
