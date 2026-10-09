@@ -1,0 +1,12 @@
+spring:
+  application:
+    name: authorization-server
+  config:
+    import:
+      - optional:file:.env[.properties]
+      - optional:configtree:/run/secrets/
+      - classpath:application-data.yaml
+  main:
+    web-application-type: servlet
+server:
+  port: ${AUTHORIZATION_SERVER_PORT:9000}

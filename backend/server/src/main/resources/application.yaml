@@ -1,0 +1,13 @@
+spring:
+  application:
+    name: backend
+  config:
+    import:
+      - optional:file:.env[.properties]
+      - optional:configtree:/run/secrets/
+      - classpath:application-data.yaml
+      - classpath:application-integrations.yaml
+  main:
+    web-application-type: reactive
+server:
+  port: ${SERVER_PORT:8080}

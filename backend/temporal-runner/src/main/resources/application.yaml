@@ -1,0 +1,14 @@
+spring:
+  application:
+    name: temporal-runner
+  config:
+    import:
+      - optional:file:.env[.properties]
+      - optional:configtree:/run/secrets/
+      - classpath:application-data.yaml
+      - classpath:application-integrations.yaml
+  main:
+    web-application-type: none
+integrations:
+  temporal:
+    workers-enabled: ${TEMPORAL_WORKERS_ENABLED:true}
